@@ -4,7 +4,7 @@
  * changes to the libraries and their usages.
  */
 
-package com.nagyrobi144.wearable.hrv.presentation
+package com.nagyrobi144.wearable.hrv
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,8 +22,9 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import com.nagyrobi144.wearable.hrv.R
-import com.nagyrobi144.wearable.hrv.presentation.theme.HrvTrackerTheme
+import com.nagyrobi144.wearable.hrv.theme.HrvTrackerTheme
+
+const val TAG = "nrobi144 HRV Wearable"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

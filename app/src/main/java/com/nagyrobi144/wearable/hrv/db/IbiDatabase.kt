@@ -1,4 +1,4 @@
-package com.nagyrobi144.wearable.hrv.presentation.db
+package com.nagyrobi144.wearable.hrv.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

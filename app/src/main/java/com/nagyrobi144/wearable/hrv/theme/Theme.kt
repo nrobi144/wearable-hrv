@@ -1,4 +1,4 @@
-package com.nagyrobi144.wearable.hrv.presentation.theme
+package com.nagyrobi144.wearable.hrv.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme
