@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nagyrobi144.wearable.hrv
+package com.nagyrobi144.wearable.hrv.startup
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -26,6 +26,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.nagyrobi144.wearable.hrv.TAG
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import com.nagyrobi144.wearable.hrv.repository.LocalPreferences

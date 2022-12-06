@@ -4,13 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.concurrent.futures.await
 import androidx.health.services.client.HealthServices
+import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveListenerConfig
 import com.nagyrobi144.wearable.hrv.TAG
+import javax.inject.Inject
 
-class HealthServicesManager(context: Context) {
+class HealthServicesManager @Inject constructor(private val client: HealthServicesClient) {
 
-    private val client = HealthServices.getClient(context)
     private val monitoringClient = client.passiveMonitoringClient
     private val dataTypes = setOf(DataType.HEART_RATE_BPM)
 
@@ -34,4 +35,5 @@ class HealthServicesManager(context: Context) {
     suspend fun unregisterForHeartRateData() {
         Log.i(TAG, "Unregistering listeners")
         monitoringClient.clearPassiveListenerServiceAsync().await()
-    }}
+    }
+}
