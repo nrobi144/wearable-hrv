@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface IbiDao {
 
-    @Query("SELECT * FROM ibi")
-    fun getAll(): Flow<List<Ibi>>
+    @Query("SELECT * FROM ibi ORDER BY timestamp DESC")
+    fun getAll(): Flow<List<IbiEntity>>
 
     @Insert
-    fun insertAll(vararg ibi: Ibi)
+    fun insertAll(vararg ibi: IbiEntity)
 
     @Delete
-    fun delete(ibi: Ibi)
+    fun delete(ibi: IbiEntity)
 }

@@ -14,10 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -27,7 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.items
 import com.nagyrobi144.wearable.hrv.theme.HrvTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -78,20 +77,23 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
         val isTrackingEnabled by viewModel.passiveDataEnabled.collectAsState()
 
         if (isTrackingEnabled) {
-            Column(
+            val rMSSDs by viewModel.rMSSDs.collectAsState()
+
+            ScalingLazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(16.dp)
                     .background(MaterialTheme.colors.background),
                 verticalArrangement = Arrangement.Center
             ) {
-                val rMSSD by viewModel.rMSSD.collectAsState()
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Enable")
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Enable")
 //                Checkbox(checked = isTrackingEnabled, onCheckedChange = viewModel::togglePassiveData)
+                    }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Last measured: $rMSSD")
+                items(rMSSDs) { rMSSD ->
+                    Text(rMSSD.toString())
                 }
             }
         } else {

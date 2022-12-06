@@ -9,6 +9,7 @@ import com.nagyrobi144.wearable.hrv.repository.LocalPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 import kotlin.math.sqrt
 
@@ -26,16 +27,31 @@ class HrvViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-    val rMSSD = repository.ibi
+    val rMSSDs = repository.ibi
         .onEach {
             Log.i(TAG, "Data is $it")
         }
         .map { ibiList ->
-            ibiList.mapNotNull {
-                if (it.quality == 1) null else it.value
-            }.rMSSD()
+            // TODO filter longer then 24h data
+            val earliest = ibiList.minBy { it.timestamp }.timestamp
+            val latest = ibiList.maxBy { it.timestamp }.timestamp
+            Log.i(TAG, "earliest: ${Instant.ofEpochMilli(earliest)}")
+            Log.i(TAG, "latest: ${Instant.ofEpochMilli(latest)}")
+
+            val timestampGroups = (earliest..latest step 1000 * 60 * 5)
+                .map { Instant.ofEpochMilli(it) }
+            Log.i(TAG, "timestampGroups: ${timestampGroups.joinToString(" --- ")}")
+
+
+            val groupedIbi = ibiList
+                .filter { it.quality == 0 }
+                .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
+                .values
+                .map { ibis -> ibis.map { it.value } }
+
+            groupedIbi.mapNotNull { it.rMSSD()?.toInt() }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
         // Check that the device has the heart rate capability and progress to the next state
@@ -67,7 +83,7 @@ class HrvViewModel @Inject constructor(
     }
 }
 
-fun List<Int>.rMSSD() = if (size <= 1) 0.0 else sqrt((0 until lastIndex).map { index ->
+fun List<Int>.rMSSD() = if (size <= 1) null else sqrt((0 until lastIndex).map { index ->
     val diff = this[index + 1] - this[index]
     diff * diff
 }.average())

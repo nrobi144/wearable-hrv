@@ -6,7 +6,7 @@ import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.HeartRateAccuracy
 import androidx.health.services.client.data.SampleDataPoint
-import com.nagyrobi144.wearable.hrv.db.Ibi
+import com.nagyrobi144.wearable.hrv.repository.Ibi
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
@@ -55,7 +55,7 @@ fun List<SampleDataPoint<Double>>.latestHeartRate(): Ibi? {
         Ibi(
             value = rawData and IBI_QUALITY_MASK,
             quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK,
-            timestamp = instant.toEpochMilli(),
+            instant = instant,
         )
     }
 }
