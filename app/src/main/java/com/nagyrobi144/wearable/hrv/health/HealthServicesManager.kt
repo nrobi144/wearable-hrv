@@ -1,9 +1,7 @@
 package com.nagyrobi144.wearable.hrv.health
 
-import android.content.Context
 import android.util.Log
 import androidx.concurrent.futures.await
-import androidx.health.services.client.HealthServices
 import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveListenerConfig

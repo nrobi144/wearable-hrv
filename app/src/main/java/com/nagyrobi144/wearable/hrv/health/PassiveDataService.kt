@@ -1,5 +1,6 @@
 package com.nagyrobi144.wearable.hrv.health
 
+import android.os.SystemClock
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
@@ -7,9 +8,14 @@ import androidx.health.services.client.data.HeartRateAccuracy
 import androidx.health.services.client.data.SampleDataPoint
 import com.nagyrobi144.wearable.hrv.db.Ibi
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
+import dagger.hilt.android.AndroidEntryPoint
+import java.time.Instant
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PassiveDataService : PassiveListenerService() {
 
+    @Inject
     lateinit var repository: IbiRepository
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
@@ -44,10 +50,12 @@ fun List<SampleDataPoint<Double>>.latestHeartRate(): Ibi? {
 
     return heartData?.let {
         val rawData = it.metadata.getInt("hr_rri")
+        val instant =
+            it.getTimeInstant(Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()))
         Ibi(
             value = rawData and IBI_QUALITY_MASK,
             quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK,
-            timestamp = it.timeDurationFromBoot.toMillis(),
+            timestamp = instant.toEpochMilli(),
         )
     }
 }

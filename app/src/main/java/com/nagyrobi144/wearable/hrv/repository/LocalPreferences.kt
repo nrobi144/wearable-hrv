@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private val PASSIVE_DATA_ENABLED = booleanPreferencesKey("passive_data_enabled")
 const val PREFERENCES_FILENAME = "hrv_tracker_prefs"
 
+@Singleton
 class LocalPreferences @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
