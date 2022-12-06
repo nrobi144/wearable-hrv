@@ -28,6 +28,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
+import com.nagyrobi144.wearable.hrv.repository.LocalPreferences
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,11 +46,14 @@ class StartupReceiver : BroadcastReceiver() {
     @Inject
     lateinit var repository: IbiRepository
 
+    @Inject
+    lateinit var localPreferences: LocalPreferences
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
 
         runBlocking {
-            if (repository.passiveDataEnabled.first()) {
+            if (localPreferences.passiveDataEnabled.first()) {
                 // Make sure we have permission.
                 val result = context.checkSelfPermission(android.Manifest.permission.BODY_SENSORS)
                 if (result == PackageManager.PERMISSION_GRANTED) {
@@ -57,7 +61,7 @@ class StartupReceiver : BroadcastReceiver() {
                 } else {
                     // We may have lost the permission somehow. Mark that background data is
                     // disabled so the state is consistent the next time the user opens the app UI.
-                    repository.setPassiveDataEnabled(false)
+                    localPreferences.setPassiveDataEnabled(false)
                 }
             }
         }
