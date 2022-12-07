@@ -6,10 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import com.nagyrobi144.wearable.hrv.repository.LocalPreferences
+import com.nagyrobi144.wearable.hrv.util.currentDay
+import com.nagyrobi144.wearable.hrv.util.deviceTimeZone
+import com.nagyrobi144.wearable.hrv.util.toDayOfYear
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.ZoneOffset
+import java.util.*
 import javax.inject.Inject
 import kotlin.math.sqrt
 
@@ -31,14 +36,14 @@ class HrvViewModel @Inject constructor(
         .onEach {
             Log.i(TAG, "Data is $it")
         }
+        .map { it.filter { ibi -> ibi.instant.toDayOfYear() == currentDay } }
         .map { ibiList ->
-            // TODO filter longer then 24h data
             val earliest = ibiList.minBy { it.timestamp }.timestamp
             val latest = ibiList.maxBy { it.timestamp }.timestamp
             Log.i(TAG, "earliest: ${Instant.ofEpochMilli(earliest)}")
             Log.i(TAG, "latest: ${Instant.ofEpochMilli(latest)}")
 
-            val timestampGroups = (earliest..latest step 1000 * 60 * 5)
+            val timestampGroups = (earliest..latest step 1000 * 60 * 60)
                 .map { Instant.ofEpochMilli(it) }
             Log.i(TAG, "timestampGroups: ${timestampGroups.joinToString(" --- ")}")
 
@@ -47,11 +52,28 @@ class HrvViewModel @Inject constructor(
                 .filter { it.quality == 0 }
                 .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
                 .values
-                .map { ibis -> ibis.map { it.value } }
 
-            groupedIbi.mapNotNull { it.rMSSD()?.toInt() }
+            groupedIbi.mapNotNull { ibi ->
+                val rMSSd = ibi.map { it.value }.rMSSD() ?: return@mapNotNull null
+                rMSSd.toInt() to ibi.first().instant.deviceTimeZone().hour
+            }
+// Calculate averages?
+                .groupBy { it.second }
+                .values.mapNotNull { rMSSDs ->
+                    val hour = rMSSDs.firstOrNull()?.second ?: return@mapNotNull null
+                    val average = rMSSDs.map { it.first }.average().toInt()
+
+                    Log.i(TAG, "rMSSd: $average at $hour")
+                    average to hour
+                }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val lowAndHighRMSSD = rMSSDs.map { rMSSDs ->
+        val min = rMSSDs.minOfOrNull { it.first } ?: return@map ""
+        val max = rMSSDs.maxOfOrNull { it.first } ?: return@map ""
+        "$min - $max rMSSD"
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
 
     init {
         // Check that the device has the heart rate capability and progress to the next state

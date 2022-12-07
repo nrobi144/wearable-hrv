@@ -19,8 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.MaterialTheme
@@ -28,6 +30,9 @@ import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.items
 import com.nagyrobi144.wearable.hrv.theme.HrvTrackerTheme
+import com.nagyrobi144.wearable.hrv.ui.Chart
+import com.nagyrobi144.wearable.hrv.ui.ChartValue
+import com.nagyrobi144.wearable.hrv.ui.XAxisValue
 import dagger.hilt.android.AndroidEntryPoint
 
 const val TAG = "nrobi144 HRV Wearable"
@@ -78,23 +83,34 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
 
         if (isTrackingEnabled) {
             val rMSSDs by viewModel.rMSSDs.collectAsState()
+            val lowAndHighRMSSD by viewModel.lowAndHighRMSSD.collectAsState()
 
-            ScalingLazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 32.dp)
+                    .padding(bottom = 32.dp, top = 16.dp)
                     .background(MaterialTheme.colors.background),
-                verticalArrangement = Arrangement.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Enable")
-//                Checkbox(checked = isTrackingEnabled, onCheckedChange = viewModel::togglePassiveData)
-                    }
-                }
-                items(rMSSDs) { rMSSD ->
-                    Text(rMSSD.toString())
-                }
+                Text(
+                    text = stringResource(R.string.todays_hrv),
+                    style = MaterialTheme.typography.caption2,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = lowAndHighRMSSD,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Chart(
+                    values = rMSSDs.map { (rMSSD, hour) -> ChartValue(hour, rMSSD) },
+                    xAxisValues = (0..24).map { hour ->
+                        XAxisValue(
+                            label = hour.takeIf { it % 6 == 0 }?.toString(),
+                            value = hour
+                        )
+                    })
             }
         } else {
             permissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
