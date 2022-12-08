@@ -97,4 +97,6 @@ dependencies {
     // WorkManager
     implementation "androidx.work:work-runtime:2.7.1"
     implementation "androidx.work:work-runtime-ktx:2.7.1"
+
+    implementation "com.google.android.horologist:horologist-tiles:0.2.5"
 }

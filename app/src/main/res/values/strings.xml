@@ -7,4 +7,6 @@
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
     <string name="todays_hrv">Today\'s HRV</string>
     <string name="average_rmssd">Average %s</string>
+    <string name="hrv_tile_title">HRV</string>
+    <string name="hrv_tile_description">Track your Heart Rate variability</string>
 </resources>

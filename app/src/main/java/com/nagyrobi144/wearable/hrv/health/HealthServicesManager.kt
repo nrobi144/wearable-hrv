@@ -5,7 +5,7 @@ import androidx.concurrent.futures.await
 import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveListenerConfig
-import com.nagyrobi144.wearable.hrv.TAG
+import com.nagyrobi144.wearable.hrv.feature.TAG
 import javax.inject.Inject
 
 class HealthServicesManager @Inject constructor(private val client: HealthServicesClient) {

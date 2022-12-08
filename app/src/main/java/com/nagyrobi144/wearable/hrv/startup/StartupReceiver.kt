@@ -26,7 +26,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.nagyrobi144.wearable.hrv.TAG
+import com.nagyrobi144.wearable.hrv.feature.TAG
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import com.nagyrobi144.wearable.hrv.repository.LocalPreferences

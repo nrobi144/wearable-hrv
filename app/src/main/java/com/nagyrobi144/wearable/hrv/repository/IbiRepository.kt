@@ -1,11 +1,6 @@
 package com.nagyrobi144.wearable.hrv.repository
 
-import android.util.Log
-import com.nagyrobi144.wearable.hrv.TAG
 import com.nagyrobi144.wearable.hrv.db.IbiDatabase
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 

@@ -4,7 +4,7 @@
  * changes to the libraries and their usages.
  */
 
-package com.nagyrobi144.wearable.hrv
+package com.nagyrobi144.wearable.hrv.feature
 
 import android.os.Bundle
 import android.util.Log
@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import com.nagyrobi144.wearable.hrv.R
 import com.nagyrobi144.wearable.hrv.theme.HrvTrackerTheme
 import com.nagyrobi144.wearable.hrv.ui.Chart
 import dagger.hilt.android.AndroidEntryPoint

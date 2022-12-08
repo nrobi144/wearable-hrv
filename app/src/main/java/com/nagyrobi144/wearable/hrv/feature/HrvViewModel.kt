@@ -1,4 +1,4 @@
-package com.nagyrobi144.wearable.hrv
+package com.nagyrobi144.wearable.hrv.feature
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
