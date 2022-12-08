@@ -1,12 +1,18 @@
 package com.nagyrobi144.wearable.hrv.repository
 
+import android.util.Log
+import com.nagyrobi144.wearable.hrv.TAG
 import com.nagyrobi144.wearable.hrv.db.IbiDatabase
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class IbiRepository @Inject constructor(private val ibiDatabase: IbiDatabase) {
 
-    val ibi = ibiDatabase.ibiDao().getAll().map { list -> list.map { it.toIbi() } }
+    val ibi = ibiDatabase.ibiDao().getAll()
+        .map { list -> list.map { it.toIbi() } }
 
     fun add(ibi: Ibi) {
         ibiDatabase.ibiDao().insertAll(ibi.toIbiEntity())

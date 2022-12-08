@@ -52,9 +52,13 @@ fun List<SampleDataPoint<Double>>.latestHeartRate(): Ibi? {
         val rawData = it.metadata.getInt("hr_rri")
         val instant =
             it.getTimeInstant(Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()))
+
+        val quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK
+
+        if (quality == 1) return null // ignore bad ibi
+
         Ibi(
             value = rawData and IBI_QUALITY_MASK,
-            quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK,
             instant = instant,
         )
     }

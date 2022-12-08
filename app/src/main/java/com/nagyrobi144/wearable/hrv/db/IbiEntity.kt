@@ -9,6 +9,5 @@ import java.time.Instant
 data class IbiEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo val value: Int,
-    @ColumnInfo val quality: Int,
     @ColumnInfo val timestamp: Long,
 )
