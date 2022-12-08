@@ -63,7 +63,11 @@ class HrvTileService : SuspendingTileService() {
                 val min = values.minOrNull() ?: return@map null
                 val max = values.maxOrNull() ?: return@map null
                 val average = values.average()
-                HrvTileState(averageHrv = average, minHrv = min.toInt(), maxHrv = max.toInt())
+                HrvTileState(
+                    averageHrv = average.toInt(),
+                    minHrv = min.toInt(),
+                    maxHrv = max.toInt()
+                )
             }
             .catch {
                 Log.w(com.nagyrobi144.wearable.hrv.feature.TAG, it.stackTraceToString())
