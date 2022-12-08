@@ -16,7 +16,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,13 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.items
 import com.nagyrobi144.wearable.hrv.theme.HrvTrackerTheme
 import com.nagyrobi144.wearable.hrv.ui.Chart
-import com.nagyrobi144.wearable.hrv.ui.ChartValue
-import com.nagyrobi144.wearable.hrv.ui.XAxisValue
 import dagger.hilt.android.AndroidEntryPoint
 
 const val TAG = "nrobi144 HRV Wearable"
@@ -79,11 +74,12 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
             viewModel.togglePassiveData(false)
         }
 
-        val isTrackingEnabled by viewModel.passiveDataEnabled.collectAsState()
+        val isPassiveDataEnabled by viewModel.passiveDataEnabled.collectAsState()
 
-        if (isTrackingEnabled) {
-            val rMSSDs by viewModel.rMSSDs.collectAsState()
+        if (isPassiveDataEnabled) {
+            val chartData by viewModel.chartData.collectAsState()
             val lowAndHighRMSSD by viewModel.lowAndHighRMSSD.collectAsState()
+            val averageRMSSD by viewModel.averageRMSSD.collectAsState()
 
             Column(
                 modifier = Modifier
@@ -96,21 +92,19 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
                 Text(
                     text = stringResource(R.string.todays_hrv),
                     style = MaterialTheme.typography.caption2,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(R.string.average_rmssd, averageRMSSD),
+                    style = MaterialTheme.typography.caption1,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
                     text = lowAndHighRMSSD,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    style = MaterialTheme.typography.caption2,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
-                Chart(
-                    values = rMSSDs.map { (rMSSD, hour) -> ChartValue(hour, rMSSD) },
-                    xAxisValues = (0..24).map { hour ->
-                        XAxisValue(
-                            label = hour.takeIf { it % 6 == 0 }?.toString(),
-                            value = hour
-                        )
-                    })
+                Chart(data = chartData)
             }
         } else {
             permissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)

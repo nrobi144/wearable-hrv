@@ -15,15 +15,16 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.MaterialTheme
+import com.nagyrobi144.wearable.hrv.model.ChartData
 
 @Composable
-fun Chart(values: List<ChartValue>, xAxisValues: List<XAxisValue>, modifier: Modifier = Modifier) {
+fun Chart(data: ChartData, modifier: Modifier = Modifier) {
 
     val chartValueColor = MaterialTheme.colors.primary
 
     Canvas(modifier = modifier.fillMaxSize()) {
-        val maxValue = values.maxOfOrNull { it.y } ?: return@Canvas
-        val padding = (size.width / xAxisValues.size) * 0.8f
+        val maxValue = data.values.maxOfOrNull { it.y } ?: size.height.toInt()
+        val padding = (size.width / data.xAxisValues.size) * 0.8f
         val heightMultiplier = (size.height / maxValue) * 0.8f
         drawIntoCanvas { canvas ->
             val radius = 1.dp.toPx()
@@ -31,8 +32,8 @@ fun Chart(values: List<ChartValue>, xAxisValues: List<XAxisValue>, modifier: Mod
             val textPadding = 2.dp.toPx()
             val rectWidth = 2.dp.toPx()
 
-            values.forEach { value ->
-                val xOffset = xAxisValues.indexOfFirst { it.value == value.x }
+            data.values.forEach { value ->
+                val xOffset = data.xAxisValues.indexOfFirst { it.value == value.x }
                 val yOffset = size.height - radius / 2 - textSize - textPadding - 4.dp.toPx()
                 val height = heightMultiplier * value.y
 
@@ -45,7 +46,7 @@ fun Chart(values: List<ChartValue>, xAxisValues: List<XAxisValue>, modifier: Mod
                     size = Size(rectWidth, height)
                 )
             }
-            xAxisValues.forEachIndexed { index, xAxisValue ->
+            data.xAxisValues.forEachIndexed { index, xAxisValue ->
                 drawCircle(
                     color = Color.Gray, radius = radius, center = Offset(
                         x = index * (radius + padding),
