@@ -6,6 +6,8 @@ import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.HeartRateAccuracy
 import androidx.health.services.client.data.SampleDataPoint
+import androidx.wear.tiles.TileService
+import com.nagyrobi144.wearable.hrv.feature.tiles.HrvTileService
 import com.nagyrobi144.wearable.hrv.repository.Ibi
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +21,10 @@ class PassiveDataService : PassiveListenerService() {
     lateinit var repository: IbiRepository
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
-        dataPoints.getData(DataType.HEART_RATE_BPM).latestHeartRate()?.let(repository::add)
+        dataPoints.getData(DataType.HEART_RATE_BPM).latestHeartRate()?.let {
+            repository.add(it)
+            TileService.getUpdater(this).requestUpdate(HrvTileService::class.java)
+        }
     }
 
 }

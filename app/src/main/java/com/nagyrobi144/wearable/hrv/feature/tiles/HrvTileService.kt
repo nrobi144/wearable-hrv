@@ -1,7 +1,6 @@
 package com.nagyrobi144.wearable.hrv.feature.tiles
 
 import android.util.Log
-import androidx.lifecycle.lifecycleScope
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
@@ -24,7 +23,7 @@ class HrvTileService : SuspendingTileService() {
     lateinit var ibiRepository: IbiRepository
     private lateinit var hrvTileRenderer: HrvTileRenderer
 
-    private lateinit var stateFlow: StateFlow<HrvTileState?>
+    private lateinit var stateFlow: Flow<HrvTileState>
 
     override fun onCreate() {
         super.onCreate()
@@ -73,16 +72,16 @@ class HrvTileService : SuspendingTileService() {
                 Log.w(com.nagyrobi144.wearable.hrv.feature.TAG, it.stackTraceToString())
                 emit(null)
             }
-            .stateIn(
-                lifecycleScope,
-                SharingStarted.WhileSubscribed(5000),
-                null
-            )
+            .onEach {
+                getUpdater(this)
+                    .requestUpdate(HrvTileService::class.java)
+            }
+            .filterNotNull()
     }
 
     override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources =
         hrvTileRenderer.produceRequestedResources(Unit, requestParams)
 
     override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile =
-        hrvTileRenderer.renderTimeline(stateFlow.filterNotNull().first(), requestParams)
+        hrvTileRenderer.renderTimeline(stateFlow.first(), requestParams)
 }
