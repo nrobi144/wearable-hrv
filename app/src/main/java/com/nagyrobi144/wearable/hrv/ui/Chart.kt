@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.MaterialTheme
 import com.nagyrobi144.wearable.hrv.model.ChartData
 
-private const val MAX_Y = 500
+private const val MAX_HRV = 180
 
 @Composable
 fun Chart(data: ChartData, modifier: Modifier = Modifier) {
@@ -26,7 +26,7 @@ fun Chart(data: ChartData, modifier: Modifier = Modifier) {
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val padding = (size.width / data.xAxisValues.size) * 0.8f
-        val heightMultiplier = (size.height / MAX_Y) * 0.8f
+        val heightMultiplier = (size.height / MAX_HRV) * 0.8f
         drawIntoCanvas { canvas ->
             val radius = 1.dp.toPx()
             val textSize = 14.sp.toPx()
