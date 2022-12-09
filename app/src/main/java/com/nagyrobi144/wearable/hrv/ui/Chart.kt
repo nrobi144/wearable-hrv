@@ -26,7 +26,7 @@ fun Chart(data: ChartData, modifier: Modifier = Modifier) {
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val padding = (size.width / data.xAxisValues.size) * 0.8f
-        val heightMultiplier = (size.height / MAX_HRV) * 0.8f
+        val heightMultiplier = size.height / MAX_HRV
         drawIntoCanvas { canvas ->
             val radius = 1.dp.toPx()
             val textSize = 14.sp.toPx()
