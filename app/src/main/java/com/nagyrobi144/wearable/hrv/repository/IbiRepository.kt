@@ -9,7 +9,7 @@ class IbiRepository @Inject constructor(private val ibiDatabase: IbiDatabase) {
     val ibi = ibiDatabase.ibiDao().getAll()
         .map { list -> list.map { it.toIbi() } }
 
-    fun add(ibi: Ibi) {
-        ibiDatabase.ibiDao().insertAll(ibi.toIbiEntity())
+    fun add(vararg ibi: Ibi) {
+        ibiDatabase.ibiDao().insertAll(*ibi.map { it.toIbiEntity() }.toTypedArray())
     }
 }

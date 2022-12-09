@@ -54,20 +54,21 @@ class HrvViewModel @Inject constructor(
             .values
 
         val chartValues = groupedIbi.mapNotNull { ibi ->
-            val rMSSd = ibi.map { it.value }.rMSSD() ?: return@mapNotNull null
+            val rMSSd =
+                ibi.map { it.value }.normaliseRRIntervals().rMSSD() ?: return@mapNotNull null
             val hour = ibi.first().instant.deviceTimeZone().hour
             ChartValue(x = hour, y = rMSSd.toInt())
         }
-        ChartData(chartValues, xAxisValues)
 //            // Calculate averages?
-//            .groupBy { it.second }
-//            .values.mapNotNull { rMSSDs ->
-//                val hour = rMSSDs.firstOrNull()?.second ?: return@mapNotNull null
-//                val average = rMSSDs.map { it.first }.average().toInt()
-//
-//                Log.i(TAG, "rMSSd: $average at $hour")
-//                average to hour
-//            }
+            .groupBy { it.x }
+            .values.mapNotNull { rMSSDs ->
+                val hour = rMSSDs.firstOrNull()?.x ?: return@mapNotNull null
+                val average = rMSSDs.map { it.y }.average().toInt()
+
+                Log.i(TAG, "rMSSd: $average at $hour")
+                ChartValue(x = hour, y = average)
+            }
+        ChartData(chartValues, xAxisValues)
     }.catch {
         Log.w(TAG, it.stackTraceToString())
         emit(ChartData(emptyList(), xAxisValues))

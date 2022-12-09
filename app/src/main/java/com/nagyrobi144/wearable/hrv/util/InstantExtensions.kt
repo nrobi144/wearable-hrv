@@ -17,7 +17,7 @@ fun List<Ibi>.filterTodaysData() = filter { it.instant.toDayOfYear() == currentD
 fun createEpochsFrom(
     earliestTimestamp: Long,
     latestTimestamp: Long,
-    epochDurationInMillis: Duration = 60.minutes
+    epochDurationInMillis: Duration = 5.minutes
 ) =
     (earliestTimestamp..latestTimestamp step epochDurationInMillis.inWholeMilliseconds)
         .map { Instant.ofEpochMilli(it) }

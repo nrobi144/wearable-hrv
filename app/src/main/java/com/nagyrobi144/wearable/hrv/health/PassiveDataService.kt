@@ -1,12 +1,14 @@
 package com.nagyrobi144.wearable.hrv.health
 
 import android.os.SystemClock
+import android.util.Log
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.HeartRateAccuracy
 import androidx.health.services.client.data.SampleDataPoint
 import androidx.wear.tiles.TileService
+import com.nagyrobi144.wearable.hrv.feature.TAG
 import com.nagyrobi144.wearable.hrv.feature.tiles.HrvTileService
 import com.nagyrobi144.wearable.hrv.repository.Ibi
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
@@ -21,10 +23,9 @@ class PassiveDataService : PassiveListenerService() {
     lateinit var repository: IbiRepository
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
-        dataPoints.getData(DataType.HEART_RATE_BPM).latestHeartRate()?.let {
-            repository.add(it)
-            TileService.getUpdater(this).requestUpdate(HrvTileService::class.java)
-        }
+        val ibiList = dataPoints.getData(DataType.HEART_RATE_BPM).ibiBatch()
+        repository.add(*ibiList.toTypedArray())
+        TileService.getUpdater(this).requestUpdate(HrvTileService::class.java)
     }
 
 }
@@ -33,7 +34,7 @@ private const val IBI_QUALITY_SHIFT = 15
 private const val IBI_MASK = 0x1
 private const val IBI_QUALITY_MASK = 0x7FFF
 
-fun List<SampleDataPoint<Double>>.latestHeartRate(): Ibi? {
+fun List<SampleDataPoint<Double>>.ibiBatch(): List<Ibi> {
     val heartData = this
         // dataPoints can have multiple types (e.g. if the app is registered for multiple types).
         .filter { it.dataType == DataType.HEART_RATE_BPM }
@@ -50,21 +51,23 @@ fun List<SampleDataPoint<Double>>.latestHeartRate(): Ibi? {
         .filter {
             it.value > 0
         }
-        // HEART_RATE_BPM is a SAMPLE type, so start and end times are the same.
-        .maxByOrNull { it.timeDurationFromBoot }
 
-    return heartData?.let {
-        val rawData = it.metadata.getInt("hr_rri")
-        val instant =
-            it.getTimeInstant(Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()))
+    return heartData
+        .mapNotNull {
+            val rawData = it.metadata.getInt("hr_rri")
+            val ibi = rawData and IBI_QUALITY_MASK
+            val instant =
+                it.getTimeInstant(Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()))
 
-        val quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK
+            val quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK
 
-        if (quality == 1) return null // ignore bad ibi
+//            if (quality == 1) return@mapNotNull null // ignore bad ibi
+            Log.i(TAG, "latestHeartRate: ibi -- $ibi -- quality -- $quality instant -- $instant")
 
-        Ibi(
-            value = rawData and IBI_QUALITY_MASK,
-            instant = instant,
-        )
-    }
+            Ibi(
+                value = ibi,
+                instant = instant,
+            )
+        }
+        .distinctBy { it.timestamp }
 }
