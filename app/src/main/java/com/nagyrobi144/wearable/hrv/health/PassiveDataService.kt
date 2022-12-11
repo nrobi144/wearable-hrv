@@ -1,14 +1,12 @@
 package com.nagyrobi144.wearable.hrv.health
 
 import android.os.SystemClock
-import android.util.Log
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.HeartRateAccuracy
 import androidx.health.services.client.data.SampleDataPoint
 import androidx.wear.tiles.TileService
-import com.nagyrobi144.wearable.hrv.feature.TAG
 import com.nagyrobi144.wearable.hrv.feature.tiles.HrvTileService
 import com.nagyrobi144.wearable.hrv.repository.Ibi
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
@@ -53,7 +51,7 @@ fun List<SampleDataPoint<Double>>.ibiBatch(): List<Ibi> {
         }
 
     return heartData
-        .mapNotNull {
+        .map {
             val rawData = it.metadata.getInt("hr_rri")
             val ibi = rawData and IBI_QUALITY_MASK
             val instant =
@@ -62,7 +60,6 @@ fun List<SampleDataPoint<Double>>.ibiBatch(): List<Ibi> {
             val quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK
 
 //            if (quality == 1) return@mapNotNull null // ignore bad ibi
-            Log.i(TAG, "latestHeartRate: ibi -- $ibi -- quality -- $quality instant -- $instant")
 
             Ibi(
                 value = ibi,

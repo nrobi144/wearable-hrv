@@ -1,6 +1,5 @@
 package com.nagyrobi144.wearable.hrv.feature.tiles
 
-import android.util.Log
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
@@ -13,7 +12,6 @@ import com.nagyrobi144.wearable.hrv.util.normaliseRRIntervals
 import com.nagyrobi144.wearable.hrv.util.rMSSD
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.*
-import java.time.Instant
 import javax.inject.Inject
 
 @OptIn(ExperimentalHorologistTilesApi::class)
@@ -37,21 +35,7 @@ class HrvTileService : SuspendingTileService() {
                 val earliest = dailyIbiList.minOf { it.timestamp }
                 val latest = dailyIbiList.maxOf { it.timestamp }
 
-                Log.i(
-                    com.nagyrobi144.wearable.hrv.feature.TAG,
-                    "earliest: ${Instant.ofEpochMilli(earliest)}"
-                )
-                Log.i(
-                    com.nagyrobi144.wearable.hrv.feature.TAG,
-                    "latest: ${Instant.ofEpochMilli(latest)}"
-                )
-
                 val timestampGroups = createEpochsFrom(earliest, latest)
-                Log.i(
-                    com.nagyrobi144.wearable.hrv.feature.TAG,
-                    "timestampGroups: ${timestampGroups.joinToString(" --- ")}"
-                )
-
 
                 val groupedIbi = dailyIbiList
                     .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
@@ -70,7 +54,6 @@ class HrvTileService : SuspendingTileService() {
                 )
             }
             .catch {
-                Log.w(com.nagyrobi144.wearable.hrv.feature.TAG, it.stackTraceToString())
                 emit(null)
             }
             .onEach {

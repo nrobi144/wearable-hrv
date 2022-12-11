@@ -1,6 +1,5 @@
 package com.nagyrobi144.wearable.hrv.feature
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
@@ -34,20 +33,13 @@ class HrvViewModel @Inject constructor(
         )
     }
 
-    val chartData = repository.ibi.onEach {
-        Log.i(TAG, "Data is $it")
-    }.map { ibiList ->
+    val chartData = repository.ibi.map { ibiList ->
         val dailyIbiList = ibiList.filterTodaysData()
 
         val earliest = dailyIbiList.minOf { it.timestamp }
         val latest = dailyIbiList.maxOf { it.timestamp }
 
-        Log.i(TAG, "earliest: ${Instant.ofEpochMilli(earliest)}")
-        Log.i(TAG, "latest: ${Instant.ofEpochMilli(latest)}")
-
         val timestampGroups = createEpochsFrom(earliest, latest)
-        Log.i(TAG, "timestampGroups: ${timestampGroups.joinToString(" --- ")}")
-
 
         val groupedIbi = dailyIbiList
             .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
@@ -65,12 +57,10 @@ class HrvViewModel @Inject constructor(
                 val hour = rMSSDs.firstOrNull()?.x ?: return@mapNotNull null
                 val average = rMSSDs.map { it.y }.average().toInt()
 
-                Log.i(TAG, "rMSSd: $average at $hour")
                 ChartValue(x = hour, y = average)
             }
         ChartData(chartValues, xAxisValues)
     }.catch {
-        Log.w(TAG, it.stackTraceToString())
         emit(ChartData(emptyList(), xAxisValues))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ChartData(emptyList(), xAxisValues))
 
@@ -81,7 +71,7 @@ class HrvViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
 
     val averageRMSSD = chartData.map { data ->
-        data.values.map { it.y }.average().toString()
+        data.values.map { it.y }.average().toInt().toString()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
 
     init {

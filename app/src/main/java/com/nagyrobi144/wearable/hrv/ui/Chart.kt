@@ -25,8 +25,9 @@ fun Chart(data: ChartData, modifier: Modifier = Modifier) {
     val chartValueColor = MaterialTheme.colors.primary
 
     Canvas(modifier = modifier.fillMaxSize()) {
+        val maxHeight = (data.values.maxOfOrNull { it.y } ?: 0).coerceAtLeast(MAX_HRV)
         val padding = (size.width / data.xAxisValues.size) * 0.8f
-        val heightMultiplier = size.height / MAX_HRV
+        val heightMultiplier = (size.height / maxHeight) * 0.8f
         drawIntoCanvas { canvas ->
             val radius = 1.dp.toPx()
             val textSize = 14.sp.toPx()

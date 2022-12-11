@@ -20,13 +20,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.nagyrobi144.wearable.hrv.feature.TAG
 import com.nagyrobi144.wearable.hrv.health.HealthServicesManager
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import com.nagyrobi144.wearable.hrv.repository.LocalPreferences
@@ -73,7 +71,6 @@ class StartupReceiver : BroadcastReceiver() {
         // sometimes the call to register for background data takes longer than that and our
         // BroadcastReceiver gets destroyed before it completes. Instead we schedule a WorkManager
         // job to perform the registration.
-        Log.i(TAG, "Enqueuing worker")
         WorkManager.getInstance(context).enqueue(
             OneTimeWorkRequestBuilder<RegisterForBackgroundDataWorker>().build()
         )
@@ -88,7 +85,6 @@ class RegisterForBackgroundDataWorker @AssistedInject constructor(
 ) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
-        Log.i(TAG, "Worker running")
         runBlocking {
             healthServicesManager.registerForHeartRateData()
         }

@@ -7,7 +7,6 @@
 package com.nagyrobi144.wearable.hrv.feature
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -43,14 +42,9 @@ class HrvActivity : ComponentActivity() {
         val permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
                 when (result) {
-                    true -> {
-                        Log.i(TAG, "Body sensors permission granted")
-                        viewModel.togglePassiveData(true)
-                    }
-                    false -> {
-                        Log.i(TAG, "Body sensors permission not granted")
-                        viewModel.togglePassiveData(false)
-                    }
+                    true -> viewModel.togglePassiveData(true)
+                    false -> viewModel.togglePassiveData(false)
+
                 }
             }
         setContent {

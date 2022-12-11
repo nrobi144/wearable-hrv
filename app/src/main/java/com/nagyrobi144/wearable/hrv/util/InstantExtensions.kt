@@ -10,7 +10,7 @@ fun Instant.deviceTimeZone() = atZone(TimeZone.getDefault().toZoneId())
 
 fun Instant.toDayOfYear() = deviceTimeZone().dayOfYear
 
-val currentDay = Instant.now().toDayOfYear()
+val currentDay = GregorianCalendar(TimeZone.getDefault()).toInstant().toDayOfYear()
 
 fun List<Ibi>.filterTodaysData() = filter { it.instant.toDayOfYear() == currentDay }
 
