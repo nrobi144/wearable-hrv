@@ -1,47 +1,38 @@
 package com.nagyrobi144.wearable.hrv.feature.tiles
 
-import android.content.Context
-import androidx.wear.tiles.DeviceParametersBuilders
-import androidx.wear.tiles.DimensionBuilders.expand
-import androidx.wear.tiles.LayoutElementBuilders.*
-import androidx.wear.tiles.material.layouts.PrimaryLayout
+import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
+import androidx.glance.background
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Column
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.padding
+import androidx.glance.text.Text
 import com.nagyrobi144.wearable.hrv.R
+import com.nagyrobi144.wearable.hrv.feature.TAG
 
-fun hrvTileLayout(
-    state: HrvTileState?,
-    context: Context,
-    deviceParameters: DeviceParametersBuilders.DeviceParameters
-) = PrimaryLayout.Builder(deviceParameters)
-    .setContent(
-        Text.Builder()
-            .setText(
-                context.getString(
-                    R.string.average_rmssd,
-                    state?.averageHrv?.toString() ?: "N/A"
-                )
+@Composable
+fun HrvTile(state: HrvTileState?) {
+    val context = LocalContext.current
+    Log.d(TAG, "HrvTile: $state")
+    Column(
+        modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            context.getString(
+                R.string.average_rmssd,
+                state?.averageHrv?.toString() ?: "N/A",
             )
-            .build()
-    )
-    .build()
-
-
-fun hrvInformation(context: Context, state: HrvTileState?) = Column.Builder()
-    .setWidth(expand())
-    .setHeight(expand())
-    .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-    .addContent(
-        Text.Builder()
-            .setText(
-                context.getString(
-                    R.string.average_rmssd,
-                    state?.averageHrv?.toString() ?: "N/A"
-                )
-            )
-            .build()
-    )
-    .addContent(
-        Text.Builder()
-            .setText("${state?.minHrv} - ${state?.maxHrv}")
-            .build()
-    )
-    .build()
+        )
+        Text(
+            text = "${state?.minHrv} - ${state?.maxHrv}",
+            modifier = GlanceModifier.padding(top = 16.dp)
+        )
+    }
+}
