@@ -1,6 +1,5 @@
 package com.nagyrobi144.wearable.hrv.feature.tiles
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -13,12 +12,10 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import com.nagyrobi144.wearable.hrv.R
-import com.nagyrobi144.wearable.hrv.feature.TAG
 
 @Composable
 fun HrvTile(state: HrvTileState?) {
     val context = LocalContext.current
-    Log.d(TAG, "HrvTile: $state")
     Column(
         modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray),
         horizontalAlignment = Alignment.CenterHorizontally,

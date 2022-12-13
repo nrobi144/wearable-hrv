@@ -1,14 +1,14 @@
 package com.nagyrobi144.wearable.hrv.feature.tiles
 
-import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.glance.GlanceId
+import androidx.glance.LocalGlanceId
+import androidx.glance.currentState
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.wear.tiles.GlanceTileService
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ServiceLifecycleDispatcher
-import androidx.lifecycle.lifecycleScope
-import com.nagyrobi144.wearable.hrv.feature.TAG
+import androidx.glance.wear.tiles.state.updateWearTileState
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
 import com.nagyrobi144.wearable.hrv.util.createEpochsFrom
 import com.nagyrobi144.wearable.hrv.util.filterTodaysData
@@ -21,19 +21,46 @@ import javax.inject.Inject
 // TODO submit an issue for Glance
 abstract class UmbrellaGlanceTileService : GlanceTileService()
 
+private val minHrvKey = intPreferencesKey("minHrv")
+private val maxHrvKey = intPreferencesKey("maxHrv")
+private val averageHrvKey = intPreferencesKey("averageHrv")
+
 @AndroidEntryPoint
-class HrvTileService : UmbrellaGlanceTileService(), LifecycleOwner {
+class HrvTileService : UmbrellaGlanceTileService() {
 
     @Inject
     lateinit var ibiRepository: IbiRepository
 
-    private lateinit var stateFlow: StateFlow<HrvTileState?>
+    override val stateDefinition = PreferencesGlanceStateDefinition
 
-    private val dispatcher = ServiceLifecycleDispatcher(this)
+    private suspend fun writePreferences(hrvTileState: HrvTileState, glanceId: GlanceId) {
+        updateWearTileState(
+            this@HrvTileService,
+            PreferencesGlanceStateDefinition,
+            glanceId
+        ) { prefs ->
+            prefs.toMutablePreferences().apply {
+                set(minHrvKey, hrvTileState.minHrv)
+                set(maxHrvKey, hrvTileState.maxHrv)
+                set(averageHrvKey, hrvTileState.averageHrv)
+            }
+        }
+    }
 
-    override fun onCreate() {
-        super.onCreate()
-        stateFlow = ibiRepository.ibi
+    @Composable
+    private fun readPreferences(): HrvTileState {
+        val minHrv = currentState<Preferences>()[minHrvKey]
+        val maxHrv = currentState<Preferences>()[maxHrvKey]
+        val averageHrv = currentState<Preferences>()[averageHrvKey]
+        return HrvTileState(
+            minHrv = minHrv ?: 0,
+            maxHrv = maxHrv ?: 0,
+            averageHrv = averageHrv ?: 0
+        )
+    }
+
+    private suspend fun subscribeToData(glanceId: GlanceId) {
+        ibiRepository.ibi
             .map { ibiList ->
                 val dailyIbiList = ibiList.filterTodaysData()
 
@@ -52,24 +79,28 @@ class HrvTileService : UmbrellaGlanceTileService(), LifecycleOwner {
                 val min = values.minOrNull() ?: return@map null
                 val max = values.maxOrNull() ?: return@map null
                 val average = values.average()
-                Log.d(TAG, "onCreate: $min $max $average")
-                HrvTileState(
-                    averageHrv = average.toInt(),
-                    minHrv = min.toInt(),
-                    maxHrv = max.toInt()
+
+                writePreferences(
+                    HrvTileState(
+                        averageHrv = average.toInt(),
+                        minHrv = min.toInt(),
+                        maxHrv = max.toInt()
+                    ), glanceId
                 )
             }
             .catch {
                 emit(null)
             }
-            .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(), null)
+            .collect()
     }
-
-    override fun getLifecycle() = dispatcher.lifecycle
 
     @Composable
     override fun Content() {
-        val state by stateFlow.collectAsState()
+        val state = readPreferences()
+        val glanceId = LocalGlanceId.current
         HrvTile(state)
+        LaunchedEffect(glanceId) {
+            subscribeToData(glanceId)
+        }
     }
 }
