@@ -70,7 +70,7 @@ class HrvTileService : UmbrellaGlanceTileService() {
                     .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
                     .values
 
-                val values = groupedIbi.map { ibi ->
+                val values = groupedIbi.mapNotNull { ibi ->
                     ibi.map { it.value }.sdnn()
                 }
                 val min = values.minOrNull() ?: return@map null

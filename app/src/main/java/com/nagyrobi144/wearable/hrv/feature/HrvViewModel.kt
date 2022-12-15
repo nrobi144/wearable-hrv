@@ -44,9 +44,8 @@ class HrvViewModel @Inject constructor(
             .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
             .values
 
-        val chartValues = groupedIbi.map { ibi ->
-            val hrv =
-                ibi.map { it.value }.sdnn()
+        val chartValues = groupedIbi.mapNotNull { ibi ->
+            val hrv = ibi.map { it.value }.normaliseRRIntervals().sdnn() ?: return@mapNotNull null
             val hour = ibi.first().instant.deviceTimeZone().hour
             ChartValue(x = hour, y = hrv.toInt())
         }
