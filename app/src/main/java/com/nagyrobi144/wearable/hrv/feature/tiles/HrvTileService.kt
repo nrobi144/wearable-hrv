@@ -10,10 +10,7 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.wear.tiles.state.updateWearTileState
 import com.nagyrobi144.wearable.hrv.repository.IbiRepository
-import com.nagyrobi144.wearable.hrv.util.createEpochsFrom
-import com.nagyrobi144.wearable.hrv.util.filterTodaysData
-import com.nagyrobi144.wearable.hrv.util.normaliseRRIntervals
-import com.nagyrobi144.wearable.hrv.util.rMSSD
+import com.nagyrobi144.wearable.hrv.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -73,8 +70,8 @@ class HrvTileService : UmbrellaGlanceTileService() {
                     .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
                     .values
 
-                val values = groupedIbi.mapNotNull { ibi ->
-                    ibi.map { it.value }.normaliseRRIntervals().rMSSD()
+                val values = groupedIbi.map { ibi ->
+                    ibi.map { it.value }.sdnn()
                 }
                 val min = values.minOrNull() ?: return@map null
                 val max = values.maxOrNull() ?: return@map null

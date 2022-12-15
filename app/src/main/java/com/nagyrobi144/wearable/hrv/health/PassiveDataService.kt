@@ -51,7 +51,7 @@ fun List<SampleDataPoint<Double>>.ibiBatch(): List<Ibi> {
         }
 
     return heartData
-        .map {
+        .mapNotNull {
             val rawData = it.metadata.getInt("hr_rri")
             val ibi = rawData and IBI_QUALITY_MASK
             val instant =
@@ -59,7 +59,7 @@ fun List<SampleDataPoint<Double>>.ibiBatch(): List<Ibi> {
 
             val quality = (rawData shr IBI_QUALITY_SHIFT) and IBI_MASK
 
-//            if (quality == 1) return@mapNotNull null // ignore bad ibi
+            if (quality == 1) return@mapNotNull null // ignore bad ibi
 
             Ibi(
                 value = ibi,

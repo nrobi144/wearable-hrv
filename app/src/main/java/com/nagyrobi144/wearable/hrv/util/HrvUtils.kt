@@ -1,12 +1,25 @@
 package com.nagyrobi144.wearable.hrv.util
 
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 fun List<Int>.rMSSD() = if (size <= 1) null else sqrt((0 until lastIndex).map { index ->
     val diff = this[index + 1] - this[index]
     diff * diff
 }.average())
+
+fun List<Int>.sdnn(): Double {
+    val sum = sum()
+    val mean = sum / 10.0
+
+
+    val standardDeviation = fold(0.0) { acc, number ->
+        acc + (number - mean).pow(2.0)
+    }
+
+    return sqrt(standardDeviation / 10)
+}
 
 
 fun List<Int>.normaliseRRIntervals(): List<Int> {

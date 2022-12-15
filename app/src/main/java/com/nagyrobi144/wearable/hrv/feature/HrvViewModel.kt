@@ -12,7 +12,6 @@ import com.nagyrobi144.wearable.hrv.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,17 +44,17 @@ class HrvViewModel @Inject constructor(
             .groupBy { ibi -> timestampGroups.indexOfFirst { it.isAfter(ibi.instant) } }
             .values
 
-        val chartValues = groupedIbi.mapNotNull { ibi ->
-            val rMSSd =
-                ibi.map { it.value }.normaliseRRIntervals().rMSSD() ?: return@mapNotNull null
+        val chartValues = groupedIbi.map { ibi ->
+            val hrv =
+                ibi.map { it.value }.sdnn()
             val hour = ibi.first().instant.deviceTimeZone().hour
-            ChartValue(x = hour, y = rMSSd.toInt())
+            ChartValue(x = hour, y = hrv.toInt())
         }
 //            // Calculate averages?
             .groupBy { it.x }
-            .values.mapNotNull { rMSSDs ->
-                val hour = rMSSDs.firstOrNull()?.x ?: return@mapNotNull null
-                val average = rMSSDs.map { it.y }.average().toInt()
+            .values.mapNotNull { hrvs ->
+                val hour = hrvs.firstOrNull()?.x ?: return@mapNotNull null
+                val average = hrvs.map { it.y }.average().toInt()
 
                 ChartValue(x = hour, y = average)
             }
@@ -64,13 +63,13 @@ class HrvViewModel @Inject constructor(
         emit(ChartData(emptyList(), xAxisValues))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ChartData(emptyList(), xAxisValues))
 
-    val lowAndHighRMSSD = chartData.map { data ->
+    val lowAndHighHrv = chartData.map { data ->
         val min = data.values.minOfOrNull { it.y } ?: return@map ""
         val max = data.values.maxOfOrNull { it.y } ?: return@map ""
-        "$min - $max rMSSD"
+        "$min - $max SDNN"
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
 
-    val averageRMSSD = chartData.map { data ->
+    val averageHrv = chartData.map { data ->
         data.values.map { it.y }.average().toInt().toString()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
 

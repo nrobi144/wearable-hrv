@@ -23,7 +23,7 @@ fun HrvTile(state: HrvTileState?) {
     ) {
         Text(
             context.getString(
-                R.string.average_rmssd,
+                R.string.average_hrv,
                 state?.averageHrv?.toString() ?: "N/A",
             )
         )

@@ -73,8 +73,8 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
 
         if (isPassiveDataEnabled) {
             val chartData by viewModel.chartData.collectAsState()
-            val lowAndHighRMSSD by viewModel.lowAndHighRMSSD.collectAsState()
-            val averageRMSSD by viewModel.averageRMSSD.collectAsState()
+            val lowAndHighHrv by viewModel.lowAndHighHrv.collectAsState()
+            val averageHrv by viewModel.averageHrv.collectAsState()
 
             Column(
                 modifier = Modifier
@@ -90,12 +90,12 @@ fun WearApp(viewModel: HrvViewModel, permissionLauncher: ActivityResultLauncher<
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = stringResource(R.string.average_rmssd, averageRMSSD),
+                    text = stringResource(R.string.average_hrv, averageHrv),
                     style = MaterialTheme.typography.caption1,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = lowAndHighRMSSD,
+                    text = lowAndHighHrv,
                     style = MaterialTheme.typography.caption2,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
